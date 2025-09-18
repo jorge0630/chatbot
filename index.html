@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Chatbot de Citas Médicas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f0f2f5; }
+    #chatbox {
+      height: 400px;
+      overflow-y: auto;
+      padding: 10px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
+    }
+    .bot-msg {
+      background: #e3f2fd;
+      padding: 8px 12px;
+      border-radius: 15px;
+      margin: 5px 0;
+      max-width: 75%;
+    }
+    .user-msg {
+      background: #c8e6c9;
+      padding: 8px 12px;
+      border-radius: 15px;
+      margin: 5px 0;
+      max-width: 75%;
+      margin-left: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <h3 class="text-center mb-3">Chatbot de Citas Médicas</h3>
+        <div id="chatbox"></div>
+
+        <div class="input-group mt-3">
+          <input type="text" id="userInput" class="form-control" placeholder="Escribe tu mensaje...">
+          <button class="btn btn-primary" onclick="sendMessage()">Enviar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+
+  <script>
+    // ✅ Inicializar EmailJS con tu Public Key
+  (function() {
+    emailjs.init({
+      publicKey: "lUCPRnoxZDbxAsp2w" // tu Public Key
+    });
+  })();
+
+    let step = 0;
+    let userName = "";
+    let cedula = "";
+    let especialidad = "";
+    let dia = "";
+    let hora = "";
+    let correoPaciente = "";
+
+    // Mensaje inicial
+    window.onload = () => {
+      addMessage("bot", "👋 Hola, soy tu asistente médico. ¿Cuál es tu nombre?");
+    };
+
+    function handleUserMessage(msg) {
+      if (step === 0) {
+        userName = msg;
+        addMessage("bot", "Hola " + userName + "! Ingresa tu número de cédula.");
+        step++;
+      } else if (step === 1) {
+        cedula = msg;
+        addMessage("bot", "Perfecto. ¿Qué especialidad necesitas?");
+        step++;
+      } else if (step === 2) {
+        especialidad = msg;
+        addMessage("bot", "¿Qué día deseas tu cita?");
+        step++;
+      } else if (step === 3) {
+        dia = msg;
+        addMessage("bot", "¿A qué hora deseas tu cita?");
+        step++;
+      } else if (step === 4) {
+        hora = msg;
+        addMessage("bot", "Por favor ingresa tu correo electrónico para confirmar.");
+        step++;
+      } else if (step === 5) {
+        correoPaciente = msg;
+        addMessage("bot", `📋 Tu cita quedó así:<br>
+          Nombre: ${userName}<br>
+          Cédula: ${cedula}<br>
+          Especialidad: ${especialidad}<br>
+          Día: ${dia}<br>
+          Hora: ${hora}<br>
+          Correo: ${correoPaciente}<br><br>
+          📩 Se enviará una confirmación a tu correo.`);
+
+        // 👉 Llamamos a EmailJS
+        enviarCorreo(userName, cedula, especialidad, dia, hora, correoPaciente);
+      }
+    }
+
+// Función para enviar correo con EmailJS
+function enviarCorreo(userName, cedula, especialidad, dia, hora, correoPaciente) {
+  const templateParams = {
+    name: userName,
+    cedula: cedula,
+    especialidad: especialidad,
+    dia: dia,
+    hora: hora,
+    correoPaciente: correoPaciente,   // solo informativo
+    reply_to: correoPaciente          // 👈 si respondes el mail, le llega al paciente
+  };
+
+  console.log("📨 Enviando con:", {
+    service_id: "service_ckk3z6k",
+    template_id: "template_fv5i2wj",
+    params: templateParams
+  });
+
+  emailjs.send("service_ckk3z6k", "template_fv5i2wj", templateParams)
+    .then(function(response) {
+      console.log("✅ Correo enviado!", response.status, response.text);
+      addMessage("bot", "✅ Tu cita fue confirmada y el correo fue enviado al administrador.");
+    }, function(error) {
+      console.error("❌ Error al enviar", error);
+      addMessage("bot", "❌ Hubo un error al enviar el correo. Intenta nuevamente.");
+    });
+}
+
+
+
+    // Agregar mensaje al chat
+    function addMessage(sender, text) {
+      const chatbox = document.getElementById("chatbox");
+      const div = document.createElement("div");
+      div.className = sender === "bot" ? "bot-msg" : "user-msg";
+      div.innerHTML = text;
+      chatbox.appendChild(div);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    // Enviar mensaje del usuario
+    function sendMessage() {
+      const input = document.getElementById("userInput");
+      const msg = input.value.trim();
+      if (msg === "") return;
+      addMessage("user", msg);
+      handleUserMessage(msg);
+      input.value = "";
+    }
+  </script>
+</body>
+</html>
