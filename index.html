@@ -81,11 +81,11 @@
         step++;
       } else if (step === 2) {
         especialidad = msg;
-        addMessage("bot", "¿Qué día deseas tu cita?");
+        addMessage("bot", "¿Qué día deseas tu cita?<br><br> Días disponibles:<br>- Lunes<br>- Martes<br>- Miércoles<br>- Jueves<br>- Viernes");
         step++;
       } else if (step === 3) {
         dia = msg;
-        addMessage("bot", "¿A qué hora deseas tu cita?");
+        addMessage("bot", " ¿A qué hora deseas tu cita?<br><br> Horarios disponibles:<br>- 8:00 AM<br>- 9:00 AM<br>- 10:00 AM<br>- 11:00 AM<br>- 12:00 PM<br>- 1:00 PM<br>- 2:00 PM");
         step++;
       } else if (step === 4) {
         hora = msg;
